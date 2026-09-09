@@ -2,6 +2,8 @@
 
 **Agent 负责智能，Workbench 负责能力执行。**
 
+![Kiko Workbench](docs/screenshot.png)
+
 Kiko Workbench 是一个让 Agent 按业务需求**自进化能力**的桌面工作台。传统模式下，Agent 的能力边界由人类决定：缺能力 → 提需求 → 排期开发；在这里，Agent 在执行业务时发现缺什么能力，就现场设计、开发、部署一个插件装进工作台，立即可用——全程零 shell、零人工介入。
 
 - **Agent 能力自进化**：内置 Plugin SDK Distributor，SDK 物料、构建、部署、注册验证全部工具化。Agent 五步 WS 调用（`file.write` → `sdk.build` → `sdk.deploy` → `plugins.rescan` → verify）即可完成一个新能力从无到有的闭环。
