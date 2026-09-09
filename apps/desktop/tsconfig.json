@@ -1,0 +1,12 @@
+{
+  // 继承工程 TS 基线（strict / NodeNext / declaration）
+  // 主进程 + preload（Node 环境）；渲染进程 src/renderer 由 Vite 构建
+  // （DOM 环境独立，esbuild 转译不做类型检查——M2-10 打包收口再议 vue-tsc）
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "rootDir": "src",
+    "outDir": "dist"
+  },
+  "include": ["src"],
+  "exclude": ["src/renderer"]
+}

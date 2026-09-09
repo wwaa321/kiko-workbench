@@ -1,0 +1,120 @@
+/*
+ * Dev 微应用测试台样式（P-003 v1）
+ *
+ * 黑白银灰主题（与工作台主界面一致的设计语言）；纯 CSS 指示器，
+ * 无 emoji、无图片资源——微应用资产自包含（协议仅服务插件目录内文件）。
+ */
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: #fafafa;
+  color: #1a1a1a;
+  font-family: "Segoe UI", "Microsoft YaHei", system-ui, sans-serif;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+/* ---------------- 页头 ---------------- */
+
+.page-head {
+  padding: 20px 24px 14px;
+  border-bottom: 1px solid #e0e0e0;
+  background: #ffffff;
+}
+
+.page-head h1 {
+  margin: 0 0 6px;
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.subtitle {
+  margin: 0;
+  color: #666666;
+  font-size: 12.5px;
+}
+
+code {
+  padding: 1px 5px;
+  border-radius: 3px;
+  background: #f0f0f0;
+  font-family: Consolas, "Courier New", monospace;
+  font-size: 12px;
+  color: #333333;
+}
+
+/* ---------------- 主体（消息流） ---------------- */
+
+.page-main {
+  flex: 1;
+  padding: 18px 24px;
+  overflow-y: auto;
+}
+
+/* 空态提示：收到首条推送后隐藏（app.js 置 hidden） */
+.hint {
+  margin: 32px 0;
+  text-align: center;
+  color: #999999;
+  font-size: 13px;
+}
+
+.messages {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* 消息条目：左侧灰条指示来源方向（后端 → 前端），app.js 动态插入 */
+.messages li {
+  margin-bottom: 10px;
+  padding: 10px 14px;
+  border: 1px solid #e0e0e0;
+  border-left: 3px solid #1a1a1a;
+  border-radius: 4px;
+  background: #ffffff;
+}
+
+.msg-meta {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 6px;
+  color: #999999;
+  font-size: 11.5px;
+}
+
+.msg-kind {
+  padding: 0 6px;
+  border-radius: 2px;
+  background: #f0f0f0;
+  color: #555555;
+}
+
+.msg-body {
+  margin: 0;
+  padding: 8px 10px;
+  border-radius: 3px;
+  background: #f7f7f7;
+  font-family: Consolas, "Courier New", monospace;
+  font-size: 12px;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+/* ---------------- 页脚 ---------------- */
+
+.page-foot {
+  padding: 10px 24px;
+  border-top: 1px solid #e0e0e0;
+  color: #aaaaaa;
+  font-size: 11.5px;
+  background: #ffffff;
+}

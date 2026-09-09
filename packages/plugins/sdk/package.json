@@ -1,0 +1,21 @@
+{
+  "name": "@kiko-workbench/plugin-sdk-distributor",
+  "version": "0.1.0",
+  "type": "module",
+  "description": "SDK 分发内置插件：sdk.manifest / sdk.install_guide / sdk.files 三能力，把插件开发物料与安装知识暴露给 Agent（Agent 自举插件开发的入口）",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@kiko-workbench/plugin-sdk": "workspace:*"
+  }
+}

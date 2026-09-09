@@ -1,0 +1,29 @@
+{
+  "name": "@kiko-workbench/mcp-adapter",
+  "version": "0.1.0",
+  "type": "module",
+  "description": "MCP 适配器：把自定义协议适配为标准 MCP Server（tools/list、tools/call、progress notification）（设计文档第 9 节）；stdio 独立进程 + WS 网关形态",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "bin": {
+    "kiko-mcp-adapter": "./dist/main.js"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@kiko-workbench/protocol": "workspace:*",
+    "@modelcontextprotocol/sdk": "1.30.0",
+    "ws": "8.18.0"
+  },
+  "devDependencies": {
+    "@types/ws": "8.5.12"
+  }
+}

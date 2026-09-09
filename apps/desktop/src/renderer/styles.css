@@ -1,0 +1,1263 @@
+/*
+ * 全局样式（自 App.vue 单文件 <style> 迁移 + 侧边栏骨架新增）
+ *
+ * 迁移决策（2026-09-02 UI 升级）：拆分组件时样式收敛为单一全局表而非
+ * SFC scoped——现有类高度跨面板复用（status-dot / empty / action-error /
+ * trace-* 等），scoped 拆分会放大 diff 与选择器权重风险；新增面板
+ * （产出物）复用既有黑白灰语言。
+ *
+ * 主题约束：黑白灰单主题（无 emoji、纯 CSS 指示器、内容区留足 padding）。
+ */
+
+/* ---------------- 基础 ---------------- */
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  font-family: "Segoe UI", "Microsoft YaHei", system-ui, sans-serif;
+  font-size: 14px;
+  color: #1a1a1a;
+  background: #fafafa;
+  overflow: hidden; /* 应用为全高双栏骨架，滚动收敛在内容区 */
+}
+
+/* ---------------- 应用骨架：侧边栏 + 主区（UI 升级新增） ---------------- */
+
+.app-shell {
+  display: grid;
+  grid-template-columns: 216px 1fr;
+  height: 100vh;
+}
+
+/* 侧边栏 */
+.sidebar {
+  background: #f2f2ef;
+  border-right: 1px solid #e3e3dd;
+  display: flex;
+  flex-direction: column;
+  padding: 20px 0 12px;
+  user-select: none;
+}
+
+.brand {
+  padding: 0 20px 18px;
+  border-bottom: 1px solid #e3e3dd;
+  margin-bottom: 12px;
+}
+
+.brand-name {
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.brand-sub {
+  font-size: 11px;
+  color: #8a8a82;
+  font-family: Consolas, "Courier New", monospace;
+  letter-spacing: 0.06em;
+  margin-top: 2px;
+}
+
+.nav-group-label {
+  font-size: 11px;
+  color: #8a8a82;
+  letter-spacing: 0.14em;
+  padding: 12px 20px 6px;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 20px;
+  cursor: pointer;
+  color: #55554f;
+  border-left: 2px solid transparent;
+  font-size: 13.5px;
+  transition:
+    background 120ms ease,
+    color 120ms ease;
+}
+
+.nav-item:hover {
+  background: rgba(0, 0, 0, 0.04);
+  color: #1a1a1a;
+}
+
+.nav-item.active {
+  background: #ffffff;
+  color: #1a1a1a;
+  font-weight: 600;
+  border-left-color: #1a1a1a;
+}
+
+/* 纯 CSS 导航图标：几何形指示器（无 emoji / 图标字体依赖） */
+.nav-ico {
+  width: 15px;
+  height: 15px;
+  flex: none;
+  position: relative;
+  border: 1.5px solid currentColor;
+}
+
+.nav-ico.plugins {
+  border-radius: 3px;
+}
+
+.nav-ico.plugins::after {
+  content: "";
+  position: absolute;
+  inset: 3px;
+  background: currentColor;
+  border-radius: 1px;
+}
+
+.nav-ico.artifacts {
+  border-radius: 50% 50% 50% 0;
+  transform: rotate(-45deg);
+}
+
+.nav-ico.artifacts::after {
+  content: "";
+  position: absolute;
+  inset: 3.5px;
+  border-radius: 50%;
+  border: 1.5px solid currentColor;
+}
+
+.nav-ico.history {
+  border-radius: 50%;
+  border-top-color: transparent;
+}
+
+.nav-ico.history::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 1.5px;
+  height: 4px;
+  background: currentColor;
+  transform: translate(-50%, -100%);
+}
+
+.nav-ico.events {
+  border: none;
+}
+
+.nav-ico.events::before,
+.nav-ico.events::after {
+  content: "";
+  position: absolute;
+  bottom: 1px;
+  left: 0;
+  width: 100%;
+  border-bottom: 1.5px solid currentColor;
+  border-radius: 50% 50% 0 0;
+}
+
+.nav-ico.events::before {
+  height: 6px;
+  opacity: 0.45;
+}
+
+.nav-ico.events::after {
+  height: 10px;
+}
+
+/* 数量徽标（黑白灰圆点数字；渲染层 store 驱动） */
+.nav-badge {
+  margin-left: auto;
+  font-family: Consolas, "Courier New", monospace;
+  font-size: 10.5px;
+  background: #1a1a1a;
+  color: #ffffff;
+  border-radius: 8px;
+  padding: 0 6px;
+  min-width: 18px;
+  text-align: center;
+  line-height: 16px;
+}
+
+.sidebar-foot {
+  margin-top: auto;
+  padding: 12px 20px 0;
+  border-top: 1px solid #e3e3dd;
+  font-size: 11px;
+  color: #8a8a82;
+  font-family: Consolas, "Courier New", monospace;
+}
+
+/* 主区 */
+.main-area {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  min-width: 0; /* grid 子项防内容撑破（表格长文件名） */
+}
+
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 28px;
+  border-bottom: 1px solid #e3e3dd;
+  background: #ffffff;
+  flex: none;
+}
+
+.topbar h1 {
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+
+.topbar-desc {
+  font-size: 12px;
+  color: #8a8a82;
+  margin-top: 1px;
+}
+
+/* 顶栏操作按钮组（Agent 接入 / MCP 接入并列） */
+.topbar-actions {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+/* 顶栏"Agent 接入 / MCP 接入"按钮（边框式黑白灰；hover 反色） */
+.agent-access {
+  flex-shrink: 0;
+  border: 1px solid #404040;
+  background: #ffffff;
+  color: #1a1a1a;
+  font-size: 13px;
+  padding: 6px 16px;
+  cursor: pointer;
+  transition:
+    background 120ms ease,
+    color 120ms ease;
+}
+
+.agent-access:hover {
+  background: #1a1a1a;
+  color: #ffffff;
+}
+
+.content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 24px 28px 40px;
+}
+
+/* 页面面板（组件视图根；替代原 .shell 单列文档流） */
+.page-panel {
+  max-width: 1080px;
+  animation: page-in 180ms ease;
+}
+
+@keyframes page-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* ---------------- 通用（自 App.vue 迁移） ---------------- */
+
+.page-panel h2 {
+  font-size: 14px;
+  font-weight: 600;
+  color: #404040;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 12px;
+}
+
+.empty {
+  color: #a6a6a6;
+  font-size: 13px;
+  padding: 8px 0;
+}
+
+.error {
+  color: #404040;
+  background: #e6e6e6;
+  padding: 10px 14px;
+  border-left: 3px solid #1a1a1a;
+  margin: 12px 28px 0;
+}
+
+/* ---------------- 插件面板（自 App.vue 迁移） ---------------- */
+
+/* 插件卡片：状态经灰阶区分（实心 / 空心 / 方块，无色彩依赖） */
+.plugin-grid {
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 12px;
+}
+
+.plugin-card {
+  background: #ffffff;
+  border: 1px solid #d9d9d9;
+  padding: 14px 16px;
+}
+
+.plugin-card[data-status="error"] {
+  border-color: #595959;
+}
+
+.plugin-head {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.plugin-name {
+  font-weight: 600;
+}
+
+.plugin-version,
+.plugin-capabilities {
+  color: #737373;
+  font-size: 12px;
+}
+
+.plugin-desc {
+  color: #595959;
+  font-size: 13px;
+  margin-top: 8px;
+  line-height: 1.5;
+}
+
+.plugin-error {
+  color: #404040;
+  font-size: 12px;
+  margin-top: 8px;
+  word-break: break-all;
+}
+
+.plugin-status-label {
+  color: #a6a6a6;
+  font-size: 12px;
+}
+
+/* 卡片底部：状态标签 + 启停操作（两端对齐） */
+.plugin-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 10px;
+  min-height: 22px;
+}
+
+/* 操作级错误条（启停失败；区别于装配级 .error） */
+.action-error {
+  color: #404040;
+  font-size: 13px;
+  padding: 8px 12px;
+  margin-bottom: 12px;
+  border: 1px solid #d9d9d9;
+  border-left: 3px solid #595959;
+  background: #ffffff;
+}
+
+/* 启停开关（纯 CSS 黑白灰：checked 深色轨道 + 右移白 thumb） */
+.switch {
+  display: inline-block;
+  cursor: pointer;
+  line-height: 0;
+}
+
+.switch input {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.switch-track {
+  position: relative;
+  display: inline-block;
+  width: 34px;
+  height: 18px;
+  border: 1px solid #a6a6a6;
+  border-radius: 9px;
+  background: #ffffff;
+  transition:
+    background 120ms ease,
+    border-color 120ms ease;
+}
+
+.switch-thumb {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #737373;
+  transition:
+    transform 120ms ease,
+    background 120ms ease;
+}
+
+.switch input:checked + .switch-track {
+  background: #1a1a1a;
+  border-color: #1a1a1a;
+}
+
+.switch input:checked + .switch-track .switch-thumb {
+  transform: translateX(16px);
+  background: #ffffff;
+}
+
+.switch input:disabled + .switch-track {
+  opacity: 0.5;
+  cursor: wait;
+}
+
+.switch:hover .switch-track {
+  border-color: #595959;
+}
+
+.switch input:checked:hover + .switch-track {
+  border-color: #1a1a1a;
+}
+
+/* error 态"重新启用"按钮（边框式黑白灰；hover 反色） */
+.re-enable {
+  border: 1px solid #404040;
+  background: #ffffff;
+  color: #1a1a1a;
+  font-size: 12px;
+  padding: 3px 12px;
+  cursor: pointer;
+  transition:
+    background 120ms ease,
+    color 120ms ease;
+}
+
+.re-enable:hover:not(:disabled) {
+  background: #1a1a1a;
+  color: #ffffff;
+}
+
+.re-enable:disabled {
+  opacity: 0.5;
+  cursor: wait;
+}
+
+/* 区块头（标题 + 区块级操作按钮同一行；插件面板"导入插件"入口） */
+.block-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.block-head h2 {
+  margin-bottom: 0;
+}
+
+/* 区块级按钮（与 .re-enable 同款黑白灰描边风格） */
+.head-btn {
+  border: 1px solid #404040;
+  background: #ffffff;
+  color: #1a1a1a;
+  font-size: 12px;
+  padding: 4px 14px;
+  cursor: pointer;
+  transition:
+    background 120ms ease,
+    color 120ms ease;
+}
+
+.head-btn:hover:not(:disabled) {
+  background: #1a1a1a;
+  color: #ffffff;
+}
+
+.head-btn:disabled {
+  opacity: 0.5;
+  cursor: wait;
+}
+
+/* 区块头两步确认组（清空历史：确认 + 取消并排） */
+.head-confirm {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* 操作成功提示条（导入 / 导出 / 删除轻反馈；灰底浅色，区别于错误条） */
+.action-notice {
+  color: #595959;
+  font-size: 13px;
+  padding: 8px 12px;
+  margin-bottom: 12px;
+  border: 1px solid #d9d9d9;
+  border-left: 3px solid #a6a6a6;
+  background: #ffffff;
+}
+
+/* 卡片尾部操作区（导出 / 删除 / 开关横向排布，间距均分） */
+.plugin-foot-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* 卡片级操作按钮（第三方专属：导出 / 删除；尺寸与开关同高） */
+.plugin-btn {
+  border: 1px solid #8c8c8c;
+  background: #ffffff;
+  color: #404040;
+  font-size: 12px;
+  padding: 2px 10px;
+  cursor: pointer;
+  transition:
+    background 120ms ease,
+    color 120ms ease,
+    border-color 120ms ease;
+}
+
+.plugin-btn:hover:not(:disabled) {
+  border-color: #1a1a1a;
+  color: #1a1a1a;
+}
+
+.plugin-btn:disabled {
+  opacity: 0.5;
+  cursor: wait;
+}
+
+/* 危险动作（删除）：描边态弱提示 + 确认态实心加重（纯黑白灰） */
+.plugin-btn.danger {
+  border-color: #404040;
+  color: #1a1a1a;
+}
+
+.plugin-btn.danger.solid {
+  background: #1a1a1a;
+  border-color: #1a1a1a;
+  color: #ffffff;
+}
+
+.plugin-btn.danger.solid:hover:not(:disabled) {
+  background: #404040;
+}
+
+/* 来源徽标（"第三方"：灰底描边小标签，纯 CSS 无图标） */
+.source-tag {
+  font-size: 11px;
+  color: #595959;
+  border: 1px solid #d9d9d9;
+  padding: 0 6px;
+  line-height: 16px;
+  flex: none;
+}
+
+/*
+ * 已配置徽标（P-002）：实心黑底白字，与描边灰底的"第三方"身份徽标
+ * 形成层级差——身份常驻弱展示，状态实心强提示。
+ */
+.config-saved-tag {
+  font-size: 11px;
+  color: #ffffff;
+  background: #1a1a1a;
+  padding: 0 6px;
+  line-height: 16px;
+  flex: none;
+}
+
+/* 纯 CSS 状态指示器：enabled 实心圆 / disabled 空心圆 / error 实心方块 */
+.status-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  flex: none;
+  align-self: center;
+}
+
+.status-dot[data-status="enabled"],
+.status-dot[data-invocation="completed"] {
+  background: #1a1a1a;
+  border-radius: 50%;
+}
+
+.status-dot[data-status="disabled"] {
+  border: 1.5px solid #a6a6a6;
+  border-radius: 50%;
+}
+
+.status-dot[data-status="error"],
+.status-dot[data-invocation="failed"],
+.status-dot[data-invocation="cancelled"] {
+  background: #595959;
+}
+
+.status-dot[data-invocation="running"],
+.status-dot[data-invocation="pending"] {
+  border: 1.5px solid #595959;
+  border-radius: 50%;
+}
+
+/* ---------------- 事件面板（自 App.vue 迁移） ---------------- */
+
+.event-list {
+  list-style: none;
+  max-height: 420px;
+  overflow-y: auto;
+  background: #ffffff;
+  border: 1px solid #e0e0e0;
+}
+
+.event-item {
+  display: flex;
+  gap: 16px;
+  padding: 6px 12px;
+  font-family: Consolas, "Courier New", monospace;
+  font-size: 12px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.event-item:last-child {
+  border-bottom: none;
+}
+
+.event-time {
+  color: #a6a6a6;
+}
+
+.event-type {
+  color: #1a1a1a;
+  min-width: 170px;
+}
+
+.event-invocation {
+  color: #737373;
+}
+
+/* ---------------- 调用历史面板（自 App.vue 迁移） ---------------- */
+
+.invocation-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #ffffff;
+  border: 1px solid #e0e0e0;
+  font-size: 13px;
+}
+
+.invocation-table th,
+.invocation-table td {
+  text-align: left;
+  padding: 8px 12px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.invocation-table th {
+  color: #737373;
+  font-weight: 500;
+  font-size: 12px;
+  border-bottom: 1px solid #d9d9d9;
+}
+
+.invocation-table td .status-dot {
+  margin-right: 6px;
+  vertical-align: baseline;
+}
+
+/* 筛选栏（黑白灰；历史 / 产出物面板共用） */
+.history-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+
+.history-select,
+.history-input {
+  border: 1px solid #d9d9d9;
+  background: #ffffff;
+  color: #1a1a1a;
+  font-size: 13px;
+  padding: 5px 10px;
+}
+
+.history-select:focus,
+.history-input:focus {
+  outline: none;
+  border-color: #1a1a1a;
+}
+
+.history-input {
+  width: 220px;
+}
+
+.history-today {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: #404040;
+  cursor: pointer;
+}
+
+.history-hint {
+  color: #a6a6a6;
+  font-size: 12px;
+}
+
+/* 历史行：可点击 + 选中态（左侧深色边条 + 浅灰底） */
+.invocation-row {
+  cursor: pointer;
+  transition: background 100ms ease;
+}
+
+.invocation-row:hover {
+  background: #f5f5f5;
+}
+
+.invocation-row.selected {
+  background: #f0f0f0;
+  box-shadow: inset 3px 0 0 #1a1a1a;
+}
+
+/* "加载更多"（边框式按钮，与 .re-enable 同语言） */
+.load-more {
+  display: block;
+  width: 100%;
+  margin-top: 8px;
+  border: 1px solid #d9d9d9;
+  background: #ffffff;
+  color: #404040;
+  font-size: 13px;
+  padding: 7px 0;
+  cursor: pointer;
+  transition:
+    background 120ms ease,
+    color 120ms ease,
+    border-color 120ms ease;
+}
+
+.load-more:hover:not(:disabled) {
+  border-color: #1a1a1a;
+  background: #1a1a1a;
+  color: #ffffff;
+}
+
+.load-more:disabled {
+  opacity: 0.5;
+  cursor: wait;
+}
+
+/* ---------------- Execution Trace 面板（自 App.vue 迁移） ---------------- */
+
+.trace-panel {
+  margin-top: 12px;
+  background: #ffffff;
+  border: 1px solid #d9d9d9;
+  padding: 14px 18px 18px;
+}
+
+.trace-hint {
+  color: #737373;
+  font-size: 13px;
+}
+
+.trace-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #e0e0e0;
+  margin-bottom: 4px;
+}
+
+.trace-capability {
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.trace-status {
+  font-size: 13px;
+}
+
+.trace-meta,
+.trace-id {
+  color: #a6a6a6;
+  font-size: 12px;
+  font-family: Consolas, "Courier New", monospace;
+}
+
+.trace-id {
+  margin-left: auto;
+}
+
+.trace-section {
+  margin-top: 14px;
+}
+
+.trace-section h3 {
+  font-size: 12px;
+  font-weight: 600;
+  color: #737373;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 8px;
+}
+
+.trace-events,
+.trace-logs {
+  list-style: none;
+  background: #fafafa;
+  border: 1px solid #f0f0f0;
+  max-height: 220px;
+  overflow-y: auto;
+}
+
+.trace-events li,
+.trace-logs li {
+  display: flex;
+  gap: 16px;
+  padding: 5px 12px;
+  font-family: Consolas, "Courier New", monospace;
+  font-size: 12px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.trace-events li:last-child,
+.trace-logs li:last-child {
+  border-bottom: none;
+}
+
+.event-data {
+  color: #737373;
+  word-break: break-all;
+}
+
+.log-message {
+  color: #1a1a1a;
+  word-break: break-all;
+}
+
+.trace-json {
+  background: #fafafa;
+  border: 1px solid #f0f0f0;
+  padding: 10px 14px;
+  font-family: Consolas, "Courier New", monospace;
+  font-size: 12px;
+  line-height: 1.6;
+  overflow-x: auto;
+  white-space: pre;
+}
+
+.trace-artifacts {
+  list-style: none;
+}
+
+.artifact-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 7px 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.artifact-item:last-child {
+  border-bottom: none;
+}
+
+.artifact-name {
+  font-size: 13px;
+  word-break: break-all;
+}
+
+.artifact-size {
+  color: #a6a6a6;
+  font-size: 12px;
+  flex: none;
+}
+
+/* 产物定位按钮（与 .re-enable 同语言） */
+.artifact-open {
+  margin-left: auto;
+  flex: none;
+  border: 1px solid #404040;
+  background: #ffffff;
+  color: #1a1a1a;
+  font-size: 12px;
+  padding: 3px 12px;
+  cursor: pointer;
+  transition:
+    background 120ms ease,
+    color 120ms ease;
+}
+
+.artifact-open:hover:not(:disabled) {
+  background: #1a1a1a;
+  color: #ffffff;
+}
+
+.artifact-open:disabled {
+  opacity: 0.5;
+  cursor: wait;
+}
+
+/* ---------------- 产出物面板（UI 升级新增） ---------------- */
+
+/* 指标卡行（全量口径汇总；黑白灰无色彩依赖） */
+.artifact-summary {
+  display: flex;
+  gap: 14px;
+  margin-bottom: 18px;
+  flex-wrap: wrap;
+}
+
+.stat {
+  background: #ffffff;
+  border: 1px solid #d9d9d9;
+  padding: 12px 18px;
+  min-width: 130px;
+}
+
+.stat-num {
+  font-size: 22px;
+  font-weight: 600;
+  font-family: Consolas, "Courier New", monospace;
+}
+
+.stat-label {
+  font-size: 11.5px;
+  color: #8a8a82;
+  letter-spacing: 0.04em;
+}
+
+/* 产出物表：文件名列宽 + 行内操作组（拦截行点击冒泡） */
+.artifact-table .artifact-file {
+  word-break: break-all;
+}
+
+.artifact-row-actions {
+  display: inline-flex;
+  gap: 6px;
+}
+
+.artifact-row-actions .artifact-open {
+  margin-left: 0;
+}
+
+/* ---------------- Agent 接入指南模态（自 App.vue 迁移） ---------------- */
+
+/* 遮罩：全屏半透明白（黑字界面用暗化遮罩对比更稳）+ 网格对齐 */
+.guide-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 32px;
+  z-index: 100;
+}
+
+.guide-modal {
+  background: #ffffff;
+  border: 1px solid #d9d9d9;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  width: min(720px, 100%);
+  max-height: calc(100vh - 64px);
+  display: flex;
+  flex-direction: column;
+}
+
+.guide-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 24px;
+  border-bottom: 1px solid #e5e5e5;
+}
+
+.guide-head h3 {
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.guide-close {
+  border: 1px solid #d9d9d9;
+  background: #ffffff;
+  color: #404040;
+  font-size: 12px;
+  padding: 3px 12px;
+  cursor: pointer;
+  transition:
+    background 120ms ease,
+    color 120ms ease;
+}
+
+.guide-close:hover {
+  background: #1a1a1a;
+  color: #ffffff;
+}
+
+.guide-hint {
+  color: #737373;
+  font-size: 12px;
+  line-height: 1.6;
+  padding: 12px 24px 0;
+}
+
+.guide-error {
+  color: #b91c1c;
+  font-size: 12px;
+  padding: 8px 24px 0;
+}
+
+/* 端点速览（等宽字体与代码块一致；复制全文前的核心信息锚点） */
+.guide-endpoints {
+  padding: 12px 24px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.guide-endpoint {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.guide-endpoint-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: #737373;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  width: 88px;
+  flex-shrink: 0;
+}
+
+.guide-endpoint code {
+  font-family: Consolas, "Courier New", monospace;
+  font-size: 13px;
+  color: #1a1a1a;
+}
+
+/* 指南全文（滚动区；等宽小字号——本质是给 Agent 的协议文本） */
+.guide-text {
+  margin: 12px 24px;
+  padding: 16px;
+  background: #fafafa;
+  border: 1px solid #f0f0f0;
+  font-family: Consolas, "Courier New", monospace;
+  font-size: 12px;
+  line-height: 1.7;
+  overflow: auto;
+  flex: 1;
+  min-height: 120px;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+.guide-foot {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 24px 16px;
+  border-top: 1px solid #e5e5e5;
+}
+
+.guide-foot .guide-error {
+  padding: 0;
+  margin-right: auto;
+}
+
+/* 复制按钮：主行动按钮（实心黑；成功态文案切换由模板三元驱动） */
+.guide-copy {
+  border: 1px solid #1a1a1a;
+  background: #1a1a1a;
+  color: #ffffff;
+  font-size: 13px;
+  padding: 6px 20px;
+  cursor: pointer;
+  transition: opacity 120ms ease;
+}
+
+.guide-copy:hover:not(:disabled) {
+  opacity: 0.85;
+}
+
+.guide-copy:disabled {
+  opacity: 0.5;
+  cursor: wait;
+}
+
+/* ---------------- 插件设置模态 + 声明式配置表单（P-002 新增） ---------------- */
+
+/*
+ * 设置模态收窄（表单无需指南的 720px 宽；覆盖 guide-modal 尺寸，
+ * 骨架 / 头部 / 提示条 / 错误条直接复用 guide-* 既有样式）。
+ */
+.config-modal {
+  width: min(480px, 100%);
+}
+
+/* 表单滚动区（guide-text 同高度策略：flex: 1 + overflow，模态封顶） */
+.config-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 4px 24px 16px;
+  min-height: 120px;
+}
+
+/* 必填缺失汇总提示（保存按钮禁用原因的明示；置于表单顶部） */
+.schema-form-missing {
+  font-size: 12px;
+  color: #595959;
+  border: 1px solid #d9d9d9;
+  border-left: 3px solid #a6a6a6;
+  background: #fafafa;
+  padding: 6px 10px;
+  margin-bottom: 14px;
+}
+
+/* 字段块（label / 描述 / 控件 / 提示 / 错误纵向排布） */
+.schema-field {
+  margin-bottom: 14px;
+}
+
+.schema-field-label {
+  display: inline-block;
+  font-size: 13px;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin-bottom: 4px;
+}
+
+/* 必填星号（与标签同行，纯文本标记） */
+.schema-required-mark {
+  color: #595959;
+  margin-left: 2px;
+}
+
+/* 字段描述（schema description；灰字小号，降低阅读噪音） */
+.schema-field-desc {
+  font-size: 12px;
+  color: #737373;
+  line-height: 1.5;
+  margin-bottom: 6px;
+}
+
+/*
+ * 输入控件（text / password / number / select 统一形状）：
+ * 与 history-input 同款描边语言（1px 灰描边 + focus 黑描边）。
+ */
+.schema-input {
+  width: 100%;
+  border: 1px solid #d9d9d9;
+  background: #ffffff;
+  color: #1a1a1a;
+  font-size: 13px;
+  padding: 5px 10px;
+  font-family: inherit;
+}
+
+.schema-input:focus {
+  outline: none;
+  border-color: #1a1a1a;
+}
+
+.schema-input:disabled {
+  opacity: 0.5;
+  cursor: wait;
+}
+
+/* boolean 开关对齐修正（复用卡片 .switch，避免行高塌陷） */
+.schema-switch {
+  display: inline-flex;
+  align-items: center;
+}
+
+/* 数值边界提示（minimum / maximum 拼接；仅展示，校验归主进程） */
+.schema-field-hint {
+  font-size: 11px;
+  color: #8a8a82;
+  margin-top: 4px;
+}
+
+/* 保存失败的内联错误（Ajv path 定位到字段；与 guide-error 同红色） */
+.schema-field-error {
+  font-size: 12px;
+  color: #b91c1c;
+  margin-top: 4px;
+}
+
+/* 表单按钮区（保存主行动 + 取消；右对齐与 guide-foot 一致） */
+.schema-form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+/* 保存：主行动按钮（实心黑，与 guide-copy 同款） */
+.schema-save {
+  border: 1px solid #1a1a1a;
+  background: #1a1a1a;
+  color: #ffffff;
+  font-size: 13px;
+  padding: 6px 20px;
+  cursor: pointer;
+  transition: opacity 120ms ease;
+}
+
+.schema-save:hover:not(:disabled) {
+  opacity: 0.85;
+}
+
+.schema-save:disabled {
+  opacity: 0.5;
+  cursor: wait;
+}
+
+/* 取消：次行动按钮（描边灰，与 guide-close 同款） */
+.schema-cancel {
+  border: 1px solid #d9d9d9;
+  background: #ffffff;
+  color: #404040;
+  font-size: 12px;
+  padding: 5px 14px;
+  cursor: pointer;
+  transition:
+    background 120ms ease,
+    color 120ms ease;
+}
+
+.schema-cancel:hover:not(:disabled) {
+  background: #1a1a1a;
+  color: #ffffff;
+}
+
+.schema-cancel:disabled {
+  opacity: 0.5;
+  cursor: wait;
+}

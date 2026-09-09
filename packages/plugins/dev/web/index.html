@@ -1,0 +1,47 @@
+<!doctype html>
+<!--
+  Dev 微应用测试台（P-003 v1 参考实现前端资产）
+
+  加载链路：插件卡片「打开界面」→ 主进程 BrowserWindow →
+  kiko-plugin://dev/web/index.html → 本文件（协议 handler 服务插件目录）。
+
+  桥面（plugin-ui-preload 注入 window.kikoPluginUi）：v1 仅单向下发订阅
+  （ctx.ui.send → onMessage）；前端到后端的请求上报留待 v2 扩桥。
+
+  CSP 注意：宿主对 HTML 响应注入 script-src 'self' —— 内联 <script> 被
+  策略禁用，脚本必须外链（./app.js）；样式放开内联（本页未用，仍外链
+  保持整洁）。第三方微应用作者照抄本目录即可接入。
+-->
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Dev 微应用测试台</title>
+    <link rel="stylesheet" href="./app.css" />
+  </head>
+  <body>
+    <header class="page-head">
+      <h1>Dev 微应用测试台</h1>
+      <p class="subtitle">
+        微应用参考实现：本窗口经 <code>kiko-plugin://dev/</code> 协议加载，
+        与插件后端之间仅有一条单向消息桥（<code>ctx.ui.send</code> → 本页）。
+      </p>
+    </header>
+
+    <main class="page-main">
+      <!-- 空态提示：收到首条推送前展示（纯文案，无 emoji） -->
+      <p id="hint" class="hint">
+        尚未收到消息——让 Agent 调用 <code>dev.uitest</code> 能力，推送内容会实时显示在这里。
+      </p>
+      <!-- 消息流（新消息置顶；条目由 app.js 动态渲染） -->
+      <ol id="messages" class="messages" aria-live="polite"></ol>
+    </main>
+
+    <footer class="page-foot">
+      <span>窗口关闭后推送将失败（40010）；重新打开界面即可恢复。</span>
+    </footer>
+
+    <!-- CSP 约束：脚本必须外链（script-src 'self' 禁内联） -->
+    <script src="./app.js"></script>
+  </body>
+</html>

@@ -1,0 +1,895 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kiko Workbench — UI 升级 Demo（侧边栏骨架 + 产出物页）</title>
+<style>
+/* =========================================================================
+   Kiko Workbench UI 升级 Demo
+   —— 黑白灰单主题 / 无 emoji / 纯 CSS 指示器 / 左侧边栏 + 轻量状态切换
+   对应决策：侧边栏导航 + 轻量状态切换（无路由）+ 产出物页（列表/筛选/定位）
+   ========================================================================= */
+
+/* ---------- 设计变量：黑白灰体系 ---------- */
+:root {
+  --bg: #f7f7f5;            /* 应用底色（暖灰白，iA Writer 质感） */
+  --panel: #ffffff;          /* 面板 */
+  --sidebar-bg: #f2f2ef;     /* 侧边栏底 */
+  --ink: #1a1a1a;            /* 主文字（近黑） */
+  --ink-2: #55554f;          /* 次级文字 */
+  --ink-3: #8a8a82;          /* 弱化文字 */
+  --line: #e3e3dd;           /* 发丝分隔线 */
+  --line-strong: #c9c9c2;    /* 强分隔线 */
+  --accent: #1a1a1a;         /* 黑即强调色 */
+  --accent-ink: #ffffff;     /* 强调态反白文字 */
+  --ok: #4a4a44;             /* 成功态（深灰代替绿色，维持灰度语言） */
+  --err: #6b6b63;            /* 错误态 */
+  --mono: "JetBrains Mono", "Cascadia Code", Consolas, monospace;
+  --sans: "Avenir Next", "PingFang SC", "Microsoft YaHei", "Segoe UI", sans-serif;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html, body { height: 100%; }
+
+body {
+  font-family: var(--sans);
+  background: var(--bg);
+  color: var(--ink);
+  font-size: 14px;
+  line-height: 1.6;
+  overflow: hidden;
+}
+
+/* ---------- 应用骨架：侧边栏 + 主区 ---------- */
+.app {
+  display: grid;
+  grid-template-columns: 216px 1fr;
+  height: 100vh;
+}
+
+/* ---------- 侧边栏 ---------- */
+.sidebar {
+  background: var(--sidebar-bg);
+  border-right: 1px solid var(--line);
+  display: flex;
+  flex-direction: column;
+  padding: 20px 0 12px;
+  user-select: none;
+}
+
+.brand {
+  padding: 0 20px 18px;
+  border-bottom: 1px solid var(--line);
+  margin-bottom: 12px;
+}
+
+.brand-name {
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.brand-sub {
+  font-size: 11px;
+  color: var(--ink-3);
+  font-family: var(--mono);
+  letter-spacing: 0.06em;
+  margin-top: 2px;
+}
+
+.nav-group-label {
+  font-size: 11px;
+  color: var(--ink-3);
+  letter-spacing: 0.14em;
+  padding: 12px 20px 6px;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 20px;
+  cursor: pointer;
+  color: var(--ink-2);
+  border-left: 2px solid transparent;
+  transition: background 0.12s ease, color 0.12s ease;
+  font-size: 13.5px;
+  position: relative;
+}
+
+.nav-item:hover { background: rgba(0,0,0,0.04); color: var(--ink); }
+
+.nav-item.active {
+  background: var(--panel);
+  color: var(--ink);
+  font-weight: 600;
+  border-left-color: var(--accent);
+}
+
+/* 纯 CSS 导航图标：几何形指示器，无 emoji */
+.nav-ico {
+  width: 15px;
+  height: 15px;
+  flex: none;
+  position: relative;
+  border: 1.5px solid currentColor;
+}
+.nav-ico.plugins      { border-radius: 3px; }                          /* 插件：方块 */
+.nav-ico.plugins::after { content: ""; position: absolute; inset: 3px; background: currentColor; border-radius: 1px; }
+.nav-ico.artifacts    { border-radius: 50% 50% 50% 0; transform: rotate(-45deg); } /* 产出物：定位徽形 */
+.nav-ico.artifacts::after { content: ""; position: absolute; inset: 3.5px; border-radius: 50%; border: 1.5px solid currentColor; }
+.nav-ico.history      { border-radius: 50%; border-top-color: transparent; }       /* 历史：时钟 */
+.nav-ico.history::after { content: ""; position: absolute; left: 50%; top: 50%; width: 1.5px; height: 4px; background: currentColor; transform: translate(-50%, -100%); }
+.nav-ico.events       { border: none; }                                /* 事件：脉冲波 */
+.nav-ico.events::before,
+.nav-ico.events::after { content: ""; position: absolute; bottom: 1px; width: 100%; border-bottom: 1.5px solid currentColor; border-radius: 50% 50% 0 0; }
+.nav-ico.events::before { height: 6px; opacity: 0.45; }
+.nav-ico.events::after  { height: 10px; }
+.nav-ico.settings      { border-radius: 50%; }                         /* 设置：齿轮环 */
+.nav-ico.settings::after { content: ""; position: absolute; inset: 3px; border: 1.5px solid currentColor; border-radius: 50%; }
+
+/* 徽标（数量提示）：黑白灰圆点数字 */
+.nav-badge {
+  margin-left: auto;
+  font-family: var(--mono);
+  font-size: 10.5px;
+  background: var(--ink);
+  color: var(--accent-ink);
+  border-radius: 8px;
+  padding: 0 6px;
+  min-width: 18px;
+  text-align: center;
+  line-height: 16px;
+}
+
+.sidebar-foot {
+  margin-top: auto;
+  padding: 12px 20px 0;
+  border-top: 1px solid var(--line);
+  font-size: 11px;
+  color: var(--ink-3);
+  font-family: var(--mono);
+}
+
+/* ---------- 主区 ---------- */
+.main {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 28px;
+  border-bottom: 1px solid var(--line);
+  background: var(--panel);
+  flex: none;
+}
+
+.topbar h1 {
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+
+.topbar-desc {
+  font-size: 12px;
+  color: var(--ink-3);
+  margin-top: 1px;
+}
+
+.btn {
+  font-family: var(--sans);
+  font-size: 12.5px;
+  padding: 6px 14px;
+  border: 1px solid var(--line-strong);
+  background: var(--panel);
+  color: var(--ink);
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background 0.12s ease;
+}
+.btn:hover { background: var(--bg); }
+.btn.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+.btn.primary:hover { background: #333; }
+.btn.ghost { border-color: transparent; color: var(--ink-2); }
+.btn.ghost:hover { background: rgba(0,0,0,0.05); color: var(--ink); }
+.btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 24px 28px 40px;
+}
+
+/* 页面切换：轻量状态切换（display 控制，对应未来 KeepAlive 方案） */
+.page { display: none; animation: pagein 0.18s ease; }
+.page.visible { display: block; }
+@keyframes pagein {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* ---------- 通用：状态点（纯 CSS） ---------- */
+.dot {
+  display: inline-block;
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: var(--ink-3);
+  vertical-align: middle;
+  margin-right: 6px;
+}
+.dot.running { background: var(--ink); animation: pulse 1.6s infinite; }
+.dot.ok      { background: var(--ok); }
+.dot.error   { background: var(--err); outline: 1px solid var(--line-strong); outline-offset: 2px; }
+.dot.off     { background: transparent; border: 1.5px solid var(--ink-3); }
+@keyframes pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(26,26,26,0.25); }
+  50%      { box-shadow: 0 0 0 4px rgba(26,26,26,0); }
+}
+
+.status-chip {
+  display: inline-flex;
+  align-items: center;
+  font-size: 11.5px;
+  color: var(--ink-2);
+  border: 1px solid var(--line-strong);
+  padding: 1px 8px;
+  border-radius: 3px;
+  font-family: var(--mono);
+}
+.status-chip.s-success { border-color: var(--ink); }
+.status-chip.s-error   { border-color: var(--err); color: var(--err); }
+
+/* ---------- 插件页 ---------- */
+.toolbar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 18px;
+}
+.toolbar .spacer { flex: 1; }
+.toolbar-note { font-size: 12px; color: var(--ink-3); }
+
+.plugin-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 14px;
+}
+
+.plugin-card {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 16px 18px;
+  transition: border-color 0.12s ease;
+}
+.plugin-card:hover { border-color: var(--line-strong); }
+.plugin-card.disabled { opacity: 0.6; }
+.plugin-card.error { border-color: var(--err); }
+
+.plugin-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.plugin-name { font-weight: 600; font-size: 14px; }
+
+.plugin-ver {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--ink-3);
+}
+
+.plugin-src {
+  font-size: 10.5px;
+  font-family: var(--mono);
+  color: var(--ink-3);
+  border: 1px solid var(--line);
+  padding: 0 5px;
+  border-radius: 3px;
+  margin-left: auto;
+}
+
+.plugin-desc {
+  font-size: 12.5px;
+  color: var(--ink-2);
+  margin: 8px 0 12px;
+  min-height: 20px;
+}
+
+.plugin-foot {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border-top: 1px solid var(--line);
+  padding-top: 12px;
+}
+
+.caps-count { font-size: 12px; color: var(--ink-3); font-family: var(--mono); }
+
+/* 开关（纯 CSS） */
+.switch {
+  margin-left: auto;
+  width: 34px; height: 19px;
+  border-radius: 10px;
+  border: 1px solid var(--line-strong);
+  background: var(--panel);
+  position: relative;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+.switch::after {
+  content: "";
+  position: absolute;
+  top: 2px; left: 2px;
+  width: 13px; height: 13px;
+  border-radius: 50%;
+  background: var(--ink-3);
+  transition: transform 0.15s ease, background 0.15s ease;
+}
+.switch.on { background: var(--accent); border-color: var(--accent); }
+.switch.on::after { transform: translateX(15px); background: var(--accent-ink); }
+
+.plugin-actions { display: flex; gap: 6px; margin-top: 12px; }
+.plugin-actions .btn { padding: 3px 10px; font-size: 11.5px; }
+
+/* ---------- 产出物页（本次核心） ---------- */
+.artifact-summary {
+  display: flex;
+  gap: 28px;
+  margin-bottom: 18px;
+}
+.stat {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 12px 18px;
+  min-width: 130px;
+}
+.stat-num { font-size: 22px; font-weight: 600; font-family: var(--mono); }
+.stat-label { font-size: 11.5px; color: var(--ink-3); letter-spacing: 0.04em; }
+
+/* 筛选栏 */
+.filter-bar {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 10px 14px;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+}
+
+.select, .input {
+  font-family: var(--sans);
+  font-size: 12.5px;
+  padding: 5px 10px;
+  border: 1px solid var(--line-strong);
+  border-radius: 4px;
+  background: var(--panel);
+  color: var(--ink);
+  outline: none;
+}
+.select:focus, .input:focus { border-color: var(--ink); }
+.input { width: 200px; }
+
+/* 表格 */
+.table-wrap {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  overflow: hidden;
+}
+table { width: 100%; border-collapse: collapse; }
+
+th {
+  text-align: left;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  color: var(--ink-3);
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--line);
+  background: var(--sidebar-bg);
+  white-space: nowrap;
+}
+
+td {
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--line);
+  font-size: 13px;
+  vertical-align: middle;
+}
+tr:last-child td { border-bottom: none; }
+tbody tr { transition: background 0.1s ease; cursor: default; }
+tbody tr:hover { background: var(--bg); }
+tbody tr.clickable { cursor: pointer; }
+
+.mono { font-family: var(--mono); font-size: 12px; }
+.dim { color: var(--ink-3); }
+.filecell { display: flex; align-items: center; gap: 8px; }
+
+/* 文件类型指示器（纯 CSS 几何形，代替图标字体） */
+.file-ico {
+  width: 22px; height: 22px;
+  flex: none;
+  border: 1.5px solid var(--ink-2);
+  border-radius: 4px;
+  position: relative;
+  background: var(--panel);
+}
+.file-ico::before {
+  /* 折角 */
+  content: "";
+  position: absolute;
+  top: -1px; right: -1px;
+  width: 8px; height: 8px;
+  background: var(--panel);
+  border-left: 1.5px solid var(--ink-2);
+  border-bottom: 1.5px solid var(--ink-2);
+}
+.file-ico.img::after { content: ""; position: absolute; inset: 5px 4px 3px; border: 1.5px solid var(--ink-2); border-radius: 50%; }
+.file-ico.txt::after { content: ""; position: absolute; left: 5px; right: 5px; top: 6px; height: 1.5px; background: var(--ink-2); box-shadow: 0 4px 0 var(--ink-2); }
+.file-ico.md::after  { content: "M"; position: absolute; inset: 0; display: grid; place-items: center; font-size: 10px; font-weight: 700; color: var(--ink-2); font-family: var(--mono); }
+
+.row-actions { display: flex; gap: 6px; }
+.row-actions .btn { padding: 3px 10px; font-size: 11.5px; }
+
+/* Trace 跳转抽屉（示意） */
+.trace-drawer {
+  position: fixed;
+  top: 0; right: -460px;
+  width: 440px; height: 100vh;
+  background: var(--panel);
+  border-left: 1px solid var(--line-strong);
+  box-shadow: -12px 0 40px rgba(0,0,0,0.08);
+  transition: right 0.22s cubic-bezier(0.3, 0.8, 0.3, 1);
+  z-index: 50;
+  display: flex;
+  flex-direction: column;
+}
+.trace-drawer.open { right: 0; }
+.trace-head {
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--line);
+  display: flex;
+  align-items: center;
+}
+.trace-head h3 { font-size: 14px; font-weight: 600; }
+.trace-head .btn { margin-left: auto; }
+.trace-body { padding: 20px; overflow-y: auto; font-size: 12.5px; }
+.trace-sec { margin-bottom: 18px; }
+.trace-sec h4 { font-size: 11px; letter-spacing: 0.12em; color: var(--ink-3); margin-bottom: 8px; font-weight: 600; }
+.trace-kv { display: grid; grid-template-columns: 90px 1fr; gap: 4px 10px; }
+.trace-kv dt { color: var(--ink-3); font-size: 12px; }
+.trace-kv dd { font-family: var(--mono); font-size: 12px; }
+
+.timeline { list-style: none; }
+.timeline li {
+  padding: 6px 0 6px 18px;
+  border-left: 1.5px solid var(--line-strong);
+  position: relative;
+  font-family: var(--mono);
+  font-size: 11.5px;
+  color: var(--ink-2);
+}
+.timeline li::before {
+  content: "";
+  position: absolute;
+  left: -4.5px; top: 12px;
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: var(--panel);
+  border: 1.5px solid var(--ink-2);
+}
+.timeline li.hl::before { background: var(--ink); border-color: var(--ink); }
+
+/* ---------- 调用历史页 ---------- */
+.expand-ico {
+  display: inline-block;
+  width: 8px; height: 8px;
+  border-right: 1.5px solid var(--ink-3);
+  border-bottom: 1.5px solid var(--ink-3);
+  transform: rotate(-45deg);
+  transition: transform 0.15s ease;
+  margin-right: 4px;
+}
+.expand-ico.open { transform: rotate(45deg); }
+
+/* ---------- 实时事件页 ---------- */
+.event-stream { display: flex; flex-direction: column; gap: 8px; max-width: 860px; }
+.event-item {
+  display: flex;
+  gap: 14px;
+  align-items: baseline;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 5px;
+  padding: 8px 14px;
+  font-size: 12.5px;
+}
+.event-time { font-family: var(--mono); font-size: 11.5px; color: var(--ink-3); flex: none; }
+.event-name { font-family: var(--mono); font-size: 12px; flex: none; }
+.event-inv { font-family: var(--mono); font-size: 11px; color: var(--ink-3); margin-left: auto; }
+
+/* ---------- 空态 ---------- */
+.empty {
+  text-align: center;
+  padding: 60px 0;
+  color: var(--ink-3);
+  font-size: 13px;
+}
+.empty::before {
+  content: "";
+  display: block;
+  width: 36px; height: 36px;
+  border: 1.5px solid var(--line-strong);
+  border-radius: 50%;
+  margin: 0 auto 14px;
+  position: relative;
+}
+</style>
+</head>
+<body>
+
+<div class="app">
+
+  <!-- ======================= 侧边栏 ======================= -->
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-name">Kiko Workbench</div>
+      <div class="brand-sub">DEMO · SIDEBAR</div>
+    </div>
+
+    <div class="nav-group-label">工作台</div>
+    <div class="nav-item active" data-page="plugins">
+      <i class="nav-ico plugins"></i>插件
+      <span class="nav-badge" id="badge-plugins">4</span>
+    </div>
+    <div class="nav-item" data-page="artifacts">
+      <i class="nav-ico artifacts"></i>产出物
+      <span class="nav-badge" id="badge-artifacts">0</span>
+    </div>
+    <div class="nav-item" data-page="history">
+      <i class="nav-ico history"></i>调用历史
+    </div>
+    <div class="nav-item" data-page="events">
+      <i class="nav-ico events"></i>实时事件
+    </div>
+
+    <div class="nav-group-label">通用</div>
+    <div class="nav-item" data-page="settings">
+      <i class="nav-ico settings"></i>设置
+    </div>
+
+    <div class="sidebar-foot">v0.x · demo</div>
+  </aside>
+
+  <!-- ======================= 主区 ======================= -->
+  <main class="main">
+    <header class="topbar">
+      <div>
+        <h1 id="page-title">插件</h1>
+        <div class="topbar-desc" id="page-desc">已装配插件与能力总览</div>
+      </div>
+      <button class="btn">Agent 接入指南</button>
+    </header>
+
+    <div class="content">
+
+      <!-- ============ 页面：插件 ============ -->
+      <section class="page visible" id="page-plugins">
+        <div class="toolbar">
+          <span class="toolbar-note">内置 3 · 第三方 1</span>
+          <span class="spacer"></span>
+          <button class="btn">重新扫描</button>
+          <button class="btn primary">导入插件</button>
+        </div>
+        <div class="plugin-grid" id="plugin-grid"><!-- JS 渲染 --></div>
+      </section>
+
+      <!-- ============ 页面：产出物（核心新增） ============ -->
+      <section class="page" id="page-artifacts">
+        <div class="artifact-summary">
+          <div class="stat"><div class="stat-num" id="stat-total">0</div><div class="stat-label">产出物总数</div></div>
+          <div class="stat"><div class="stat-num" id="stat-today">0</div><div class="stat-label">今日新增</div></div>
+          <div class="stat"><div class="stat-num" id="stat-size">0 B</div><div class="stat-label">累计大小</div></div>
+        </div>
+
+        <div class="filter-bar">
+          <select class="select" id="f-capability">
+            <option value="">全部能力</option>
+            <option value="file.write">file.write</option>
+            <option value="document.create">document.create</option>
+            <option value="dev.scaffold">dev.scaffold</option>
+          </select>
+          <input class="input" id="f-filename" placeholder="文件名包含…">
+          <select class="select" id="f-date">
+            <option value="">全部时间</option>
+            <option value="today">仅今天</option>
+            <option value="week">最近 7 天</option>
+          </select>
+          <span class="spacer" style="flex:1"></span>
+          <span class="toolbar-note" id="artifact-count-note"></span>
+        </div>
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th style="width:34%">文件名</th>
+                <th>来源能力</th>
+                <th>大小</th>
+                <th>生成时间</th>
+                <th style="width:170px">操作</th>
+              </tr>
+            </thead>
+            <tbody id="artifact-tbody"><!-- JS 渲染 --></tbody>
+          </table>
+        </div>
+        <div class="empty" id="artifact-empty" style="display:none">没有匹配的产出物</div>
+      </section>
+
+      <!-- ============ 页面：调用历史 ============ -->
+      <section class="page" id="page-history">
+        <div class="filter-bar">
+          <select class="select">
+            <option value="">全部状态</option>
+            <option>success</option>
+            <option>error</option>
+            <option>running</option>
+          </select>
+          <input class="input" placeholder="能力子串…">
+          <label style="font-size:12.5px;color:var(--ink-2);display:flex;align-items:center;gap:6px">
+            <input type="checkbox"> 仅今天
+          </label>
+          <span class="spacer" style="flex:1"></span>
+          <button class="btn">清空历史</button>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th style="width:26%">调用 ID</th>
+                <th>能力</th>
+                <th>状态</th>
+                <th>产物</th>
+                <th>时间</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="history-tbody"><!-- JS 渲染 --></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ============ 页面：实时事件 ============ -->
+      <section class="page" id="page-events">
+        <div class="toolbar">
+          <span class="toolbar-note"><span class="dot running"></span>监听中 · 最新 50 条保留</span>
+          <span class="spacer"></span>
+          <button class="btn">暂停</button>
+        </div>
+        <div class="event-stream" id="event-stream"><!-- JS 渲染 --></div>
+      </section>
+
+      <!-- ============ 页面：设置（占位） ============ -->
+      <section class="page" id="page-settings">
+        <div class="empty">设置页占位 —— 未来承接 Agent 接入信息、通用偏好等</div>
+      </section>
+
+    </div>
+  </main>
+</div>
+
+<!-- ======================= Trace 抽屉（产出物 → 查看调用） ======================= -->
+<div class="trace-drawer" id="trace-drawer">
+  <div class="trace-head">
+    <h3>执行 Trace</h3>
+    <button class="btn" onclick="closeTrace()">关闭</button>
+  </div>
+  <div class="trace-body">
+    <div class="trace-sec">
+      <h4>调用信息</h4>
+      <dl class="trace-kv" id="trace-kv"></dl>
+    </div>
+    <div class="trace-sec">
+      <h4>事件时间线</h4>
+      <ul class="timeline">
+        <li>14:32:01.203 &nbsp;invocation.started</li>
+        <li class="hl">14:32:01.210 &nbsp;capability.resolved</li>
+        <li>14:32:01.440 &nbsp;artifact.saved</li>
+        <li>14:32:01.442 &nbsp;invocation.completed</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<script>
+/* =========================================================================
+   Demo 交互脚本：仅模拟数据与轻量状态切换
+   真实实现对应：Vue 组件拆分 + sidebar 状态 + KeepAlive（无路由）
+   ========================================================================= */
+
+/* ---------- Mock 数据 ---------- */
+const plugins = [
+  { name: "File", ver: "1.0.0", src: "内置", status: "running", desc: "文件读写能力，工作区沙箱路径", caps: 6, on: true },
+  { name: "Document", ver: "1.0.0", src: "内置", status: "running", desc: "文档生成与导出", caps: 3, on: true },
+  { name: "Dev", ver: "1.0.0", src: "内置", status: "error", desc: "脚手架与开发辅助", caps: 2, on: true },
+  { name: "markdown-exporter", ver: "0.2.1", src: "第三方", status: "running", desc: "Markdown 批量导出", caps: 1, on: false },
+];
+
+const artifacts = [
+  { file: "季度报告-草稿.md", type: "md", capability: "document.create", size: 18432, time: "2026-09-02 14:32", inv: "inv_8f3a2c", today: true },
+  { file: "架构图.png", type: "img", capability: "document.create", size: 262144, time: "2026-09-02 11:05", inv: "inv_7d1b9e", today: true },
+  { file: "notes-2026-09-01.txt", type: "txt", capability: "file.write", size: 2048, time: "2026-09-01 09:18", inv: "inv_6c0a7f", today: false },
+  { file: "scaffold-main.ts", type: "txt", capability: "dev.scaffold", size: 5120, time: "2026-08-31 16:44", inv: "inv_5b9z6d", today: false },
+  { file: "会议纪要.md", type: "md", capability: "document.create", size: 8960, time: "2026-08-30 10:02", inv: "inv_4a8y5c", today: false },
+  { file: "logo-sketch.png", type: "img", capability: "file.write", size: 1048576, time: "2026-08-28 15:30", inv: "inv_3c7x4b", today: false },
+];
+
+const historyRows = [
+  { id: "inv_8f3a2c", cap: "document.create", status: "success", arts: 1, time: "2026-09-02 14:32" },
+  { id: "inv_7d1b9e", cap: "document.create", status: "success", arts: 1, time: "2026-09-02 11:05" },
+  { id: "inv_6c0a7f", cap: "file.write", status: "success", arts: 1, time: "2026-09-01 09:18" },
+  { id: "inv_5b9z6d", cap: "dev.scaffold", status: "error", arts: 0, time: "2026-08-31 16:44" },
+];
+
+const eventRows = [
+  { t: "14:32:01", name: "invocation.completed", inv: "inv_8f3a2c" },
+  { t: "14:32:01", name: "artifact.saved", inv: "inv_8f3a2c" },
+  { t: "14:32:00", name: "progress", inv: "inv_8f3a2c" },
+  { t: "14:32:00", name: "invocation.started", inv: "inv_8f3a2c" },
+  { t: "11:05:33", name: "invocation.completed", inv: "inv_7d1b9e" },
+];
+
+/* ---------- 工具 ---------- */
+function sizeText(n) {
+  return n >= 1048576 ? (n / 1048576).toFixed(1) + " MB" : n >= 1024 ? (n / 1024).toFixed(1) + " KB" : n + " B";
+}
+function esc(s) {
+  return s.replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+}
+
+/* ---------- 轻量状态切换（对应未来 Vue 的 sidebar 状态 + KeepAlive） ---------- */
+const pageMeta = {
+  plugins:   { title: "插件", desc: "已装配插件与能力总览" },
+  artifacts: { title: "产出物", desc: "全部历史执行产出的归集与检索" },
+  history:   { title: "调用历史", desc: "调用记录分页查询与 Trace 展开" },
+  events:    { title: "实时事件", desc: "运行中调用的事件流（最新在前）" },
+  settings:  { title: "设置", desc: "通用偏好（占位）" },
+};
+
+document.querySelectorAll(".nav-item").forEach(el => {
+  el.addEventListener("click", () => {
+    const key = el.dataset.page;
+    document.querySelectorAll(".nav-item").forEach(n => n.classList.remove("active"));
+    el.classList.add("active");
+    document.querySelectorAll(".page").forEach(p => p.classList.remove("visible"));
+    document.getElementById("page-" + key).classList.add("visible");
+    document.getElementById("page-title").textContent = pageMeta[key].title;
+    document.getElementById("page-desc").textContent = pageMeta[key].desc;
+  });
+});
+
+/* ---------- 插件页渲染 ---------- */
+function renderPlugins() {
+  const grid = document.getElementById("plugin-grid");
+  grid.innerHTML = plugins.map((p, i) => `
+    <div class="plugin-card ${p.on ? "" : "disabled"} ${p.status === "error" ? "error" : ""}">
+      <div class="plugin-head">
+        <span class="dot ${p.status}"></span>
+        <span class="plugin-name">${esc(p.name)}</span>
+        <span class="plugin-ver">v${p.ver}</span>
+        <span class="plugin-src">${p.src}</span>
+      </div>
+      <div class="plugin-desc">${esc(p.desc)}</div>
+      <div class="plugin-foot">
+        <span class="caps-count">${p.caps} capabilities</span>
+        <div class="switch ${p.on ? "on" : ""}" title="启用/停用" onclick="togglePlugin(${i})"></div>
+      </div>
+      <div class="plugin-actions">
+        <button class="btn ghost">导出</button>
+        <button class="btn ghost" ${p.src === "内置" ? "disabled title=\"内置插件受保护\"" : ""}>删除</button>
+      </div>
+    </div>`).join("");
+}
+function togglePlugin(i) {
+  plugins[i].on = !plugins[i].on;
+  renderPlugins();
+}
+
+/* ---------- 产出物页渲染 + 筛选（对应未来 SQL 下推查询的 UI 形态） ---------- */
+function renderArtifacts() {
+  const cap = document.getElementById("f-capability").value;
+  const name = document.getElementById("f-filename").value.trim().toLowerCase();
+  const date = document.getElementById("f-date").value;
+
+  const rows = artifacts.filter(a =>
+    (cap === "" || a.capability === cap) &&
+    (name === "" || a.file.toLowerCase().includes(name)) &&
+    (date !== "today" || a.today)
+  );
+
+  const tbody = document.getElementById("artifact-tbody");
+  tbody.innerHTML = rows.map(a => `
+    <tr class="clickable" onclick="openTrace('${a.inv}', '${esc(a.file)}')">
+      <td><div class="filecell"><i class="file-ico ${a.type}"></i><span>${esc(a.file)}</span></div></td>
+      <td class="mono dim">${a.capability}</td>
+      <td class="mono dim">${sizeText(a.size)}</td>
+      <td class="mono dim">${a.time}</td>
+      <td>
+        <div class="row-actions" onclick="event.stopPropagation()">
+          <button class="btn ghost">打开所在文件夹</button>
+          <button class="btn ghost" onclick="openTrace('${a.inv}', '${esc(a.file)}')">Trace</button>
+        </div>
+      </td>
+    </tr>`).join("");
+
+  document.getElementById("artifact-empty").style.display = rows.length ? "none" : "block";
+  document.getElementById("artifact-count-note").textContent = `显示 ${rows.length} / ${artifacts.length} 条`;
+
+  /* 汇总（筛选无关的总览口径） */
+  document.getElementById("stat-total").textContent = artifacts.length;
+  document.getElementById("stat-today").textContent = artifacts.filter(a => a.today).length;
+  document.getElementById("stat-size").textContent = sizeText(artifacts.reduce((s, a) => s + a.size, 0));
+  document.getElementById("badge-artifacts").textContent = artifacts.length;
+}
+["f-capability", "f-filename", "f-date"].forEach(id => {
+  document.getElementById(id).addEventListener("input", renderArtifacts);
+  document.getElementById(id).addEventListener("change", renderArtifacts);
+});
+
+/* ---------- Trace 抽屉（产出物 → 反查调用，替代"从历史找产物"的逆路径） ---------- */
+function openTrace(inv, file) {
+  const kv = document.getElementById("trace-kv");
+  kv.innerHTML = `
+    <dt>调用 ID</dt><dd>${inv}</dd>
+    <dt>来源产物</dt><dd>${file}</dd>
+    <dt>状态</dt><dd>success</dd>
+    <dt>耗时</dt><dd>239 ms</dd>`;
+  document.getElementById("trace-drawer").classList.add("open");
+}
+function closeTrace() {
+  document.getElementById("trace-drawer").classList.remove("open");
+}
+
+/* ---------- 调用历史页渲染 ---------- */
+function renderHistory() {
+  document.getElementById("history-tbody").innerHTML = historyRows.map(h => `
+    <tr class="clickable">
+      <td class="mono">${h.id}</td>
+      <td class="mono dim">${h.cap}</td>
+      <td><span class="status-chip s-${h.status === "success" ? "success" : "error"}">${h.status}</span></td>
+      <td class="mono dim">${h.arts > 0 ? h.arts : "—"}</td>
+      <td class="mono dim">${h.time}</td>
+      <td><i class="expand-ico"></i></td>
+    </tr>`).join("");
+}
+
+/* ---------- 实时事件页渲染 ---------- */
+function renderEvents() {
+  document.getElementById("event-stream").innerHTML = eventRows.map(e => `
+    <div class="event-item">
+      <span class="event-time">${e.t}</span>
+      <span class="event-name">${e.name}</span>
+      <span class="event-inv">${e.inv}</span>
+    </div>`).join("");
+}
+
+/* ---------- 初始化 ---------- */
+renderPlugins();
+renderArtifacts();
+renderHistory();
+renderEvents();
+</script>
+</body>
+</html>

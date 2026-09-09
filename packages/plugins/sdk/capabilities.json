@@ -1,0 +1,270 @@
+[
+  {
+    "id": "sdk.manifest",
+    "name": "SDK Manifest",
+    "description": "返回内置 SDK 物料的版本与文件清单（Agent 校验环境用）。sdk_root 即 npm install 的本地目录源；packages 含两包（plugin-sdk / protocol）的完整 scope 名、版本与物料统计。",
+    "input_schema": {
+      "type": "object",
+      "properties": {}
+    },
+    "output_schema": {
+      "type": "object",
+      "properties": {
+        "sdk_root": {
+          "type": "string",
+          "description": "SDK 物料根目录绝对路径"
+        },
+        "packages": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "version": {
+                "type": "string"
+              },
+              "file_count": {
+                "type": "number"
+              },
+              "total_bytes": {
+                "type": "number"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  {
+    "id": "sdk.install_guide",
+    "name": "SDK Install Guide",
+    "description": "返回插件开发环境初始化与部署的双轨指引（Agent 按序执行即可）。mode=agent（缺省）：零 shell 五步——file.write 五件套 → sdk.build → sdk.deploy → plugins.rescan → discover/invoke，零终端、零 npm、零重启；mode=human：v1 人类轨 8 步（含 npm 命令，需终端与重启）。",
+    "input_schema": {
+      "type": "object",
+      "properties": {
+        "project_dir": {
+          "type": "string",
+          "description": "可选，Agent 的插件项目目录，用于生成精确命令"
+        },
+        "mode": {
+          "type": "string",
+          "enum": [
+            "agent",
+            "human"
+          ],
+          "description": "指引轨道：agent（缺省）零 shell 轨，全程 WS 能力调用；human 需终端的 v1 人类轨"
+        }
+      }
+    },
+    "output_schema": {
+      "type": "object",
+      "properties": {
+        "mode": {
+          "type": "string",
+          "enum": [
+            "agent",
+            "human"
+          ],
+          "description": "本次返回的指引轨道"
+        },
+        "node_requirement": {
+          "type": "string",
+          "description": "Node.js 版本要求"
+        },
+        "sdk_root": {
+          "type": "string",
+          "description": "SDK 物料根目录绝对路径"
+        },
+        "user_plugins_root": {
+          "type": "string",
+          "description": "第三方插件部署目标根目录"
+        },
+        "steps": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "title": {
+                "type": "string"
+              },
+              "command": {
+                "type": "string"
+              },
+              "explanation": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "restart_required": {
+          "type": "boolean",
+          "description": "仅 human 轨：部署后需重启工作台生效（Registry 仅启动时扫描）"
+        },
+        "rescan_required": {
+          "type": "boolean",
+          "description": "仅 agent 轨：部署后调 plugins.rescan 即生效（零重启）"
+        },
+        "spec_doc": {
+          "type": "string",
+          "description": "插件接口规范文档名（Agent 开发时遵循）"
+        },
+        "spec_read_via": {
+          "type": "string",
+          "description": "规范获取方式（Agent 读不到外部文档）：invoke sdk.spec 能力，可传 section 分章节拉取"
+        }
+      }
+    }
+  },
+  {
+    "id": "sdk.spec",
+    "name": "SDK Development Spec",
+    "description": "返回《Kiko 插件开发规范》全文或指定章节（Agent 读不到外部文档，规范随 SDK 物料分发）。section 缺省返回全文与章节目录；传章节关键词（如 \"7\" / \"错误处理\"）仅返回该章节，控制上下文占用。",
+    "input_schema": {
+      "type": "object",
+      "properties": {
+        "section": {
+          "type": "string",
+          "description": "可选章节过滤：对二级标题包含式匹配（如 \"7\"、\"错误处理\"、\"沙箱\"），未命中返回可用章节列表"
+        }
+      }
+    },
+    "output_schema": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "规范文档名"
+        },
+        "section": {
+          "type": "string",
+          "description": "仅 section 命中时返回：命中的章节标题"
+        },
+        "sections": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "全部章节标题目录（先拿目录再按需拉取）"
+        },
+        "content": {
+          "type": "string",
+          "description": "全文（section 缺省）或命中章节的 Markdown 内容"
+        }
+      },
+      "required": [
+        "name",
+        "sections",
+        "content"
+      ]
+    }
+  },
+  {
+    "id": "sdk.files",
+    "name": "SDK Files",
+    "description": "按相对路径返回 SDK 物料单文件内容（远程 Agent 场景 / 物料一致性校验）。package 限 plugin-sdk / protocol；path 为包内相对路径（如 dist/index.d.ts），越界路径被拒绝。",
+    "input_schema": {
+      "type": "object",
+      "properties": {
+        "package": {
+          "type": "string",
+          "enum": [
+            "plugin-sdk",
+            "protocol"
+          ],
+          "description": "物料包名（不带 @kiko-workbench/ scope）"
+        },
+        "path": {
+          "type": "string",
+          "description": "包内相对路径，如 dist/index.d.ts"
+        }
+      },
+      "required": [
+        "package",
+        "path"
+      ]
+    },
+    "output_schema": {
+      "type": "object",
+      "properties": {
+        "content": {
+          "type": "string",
+          "description": "UTF-8 文本内容"
+        },
+        "size": {
+          "type": "number",
+          "description": "文件字节数"
+        }
+      }
+    }
+  },
+  {
+    "id": "sdk.build",
+    "name": "SDK Build",
+    "description": "在插件项目目录内执行自包含 bundle 构建（零 shell：内部 spawn 工作台分发的 esbuild 二进制，SDK import 经 alias 改道 vendor 物料，无需 npm install）。project_dir 必须是 workspaceRoot 内的相对路径且已含 src/index.ts（先经 file.write 写入源码）；产物 dist/index.js 保证零裸包名 import（运行时无 node_modules 解析链）；esbuild 告警/报错转发至执行日志（[esbuild] / [esbuild-err] 前缀）。",
+    "input_schema": {
+      "type": "object",
+      "properties": {
+        "project_dir": {
+          "type": "string",
+          "description": "workspace 内的插件项目目录相对路径（file.write 写入源码处）"
+        }
+      },
+      "required": [
+        "project_dir"
+      ]
+    },
+    "output_schema": {
+      "type": "object",
+      "properties": {
+        "entry": {
+          "type": "string",
+          "description": "产物绝对路径（<project_dir>/dist/index.js）"
+        },
+        "size": {
+          "type": "number",
+          "description": "产物字节数"
+        }
+      }
+    },
+    "timeout_ms": 120000
+  },
+  {
+    "id": "sdk.deploy",
+    "name": "SDK Deploy",
+    "description": "把构建完成的插件三件套（manifest.json / capabilities.json / dist/index.js）从 workspace 项目目录复制部署到 user_plugins_root/<plugin-id>（零 shell）。微应用插件（manifest 声明 contributes.ui.entry）的前端资产目录（如 web/）随部署整体复制，entry 文件缺失或路径非法则部署前拦截。部署前校验 manifest（id/name/version 必填、id 禁路径分隔符）与 capabilities（可解析数组）及构建产物存在性；同 id 重复部署幂等覆盖；部署后需调 plugins.rescan 生效（rescan_hint 提示）。",
+    "input_schema": {
+      "type": "object",
+      "properties": {
+        "project_dir": {
+          "type": "string",
+          "description": "workspace 内的插件项目目录相对路径（sdk.build 产物所在）"
+        }
+      },
+      "required": [
+        "project_dir"
+      ]
+    },
+    "output_schema": {
+      "type": "object",
+      "properties": {
+        "deployed_to": {
+          "type": "string",
+          "description": "部署目标目录绝对路径（user_plugins_root/<plugin-id>）"
+        },
+        "files": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "已复制的部署文件清单（三件套；微应用插件额外含前端资产目录条目，如 \"web/\"）"
+        },
+        "rescan_hint": {
+          "type": "boolean",
+          "description": "恒 true：部署后应调用 plugins.rescan 使新插件可发现"
+        }
+      }
+    }
+  }
+]

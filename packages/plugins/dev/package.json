@@ -1,0 +1,21 @@
+{
+  "name": "@kiko-workbench/plugin-dev",
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Dev 内置插件：dev.longtask 模拟长任务（M2-03 异步语义验证测试床：progress 上报 + 协作取消检查点 + ignore_cancel 强杀路径）",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@kiko-workbench/plugin-sdk": "workspace:*"
+  }
+}

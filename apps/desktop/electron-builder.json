@@ -1,0 +1,60 @@
+{
+  // electron-builder 配置（M2-10a；设计文档第 3 节 / 11 节 M2 清单第 8 条）
+  //
+  // 全工程零原生依赖（ADR-008 node:sqlite 为 Electron 内置）：
+  // 无需 electron-rebuild / asarUnpack；asar 内含主进程 dist +
+  // production 依赖（core/protocol/sdk + ws 传递闭包，electron-builder
+  // 自动收集）。
+  "appId": "cn.kiko.workbench",
+  "productName": "Kiko Workbench",
+  "copyright": "Copyright © 2026 Kiko Workbench",
+  "directories": {
+    "output": "release",
+    "buildResources": "build-resources"
+  },
+  // 主进程产物：dist/headless.js（main 字段）+ preload.js + renderer/
+  // （vite 静态产物，asar 内 loadFile 加载）
+  "files": ["dist/**/*"],
+  // 内置插件（M2-10a bundle 自包含）：asar 外 resources/plugins，
+  // bootstrap.resolvePluginsRoot 在 app.isPackaged 时指向此处；
+  // icon.png：托盘图标（tray.ts 在 app.isPackaged 时经
+  // process.resourcesPath/icon.png 读取——与 exe 图标同源单点维护）
+  "extraResources": [
+    {
+      "from": "build-resources/plugins",
+      "to": "plugins"
+    },
+    {
+      // S8（零 Shell 自举方案 3.4）：esbuild CLI 二进制——sdk.build 在
+      // 插件进程内 spawn 它完成零 shell 构建；bootstrap.resolveEsbuildBinary
+      // 安装版指向 resources/esbuild/esbuild.exe
+      "from": "build-resources/esbuild",
+      "to": "esbuild"
+    },
+    {
+      // M3（MCP 适配器）：esbuild 自包含单文件（ws / MCP SDK inline），
+      // bootstrap.resolveMcpAdapterPath 安装版指向 resources/mcp-adapter/
+      // main.js——外部 MCP 客户端以 node 命令拉起（"MCP 接入"模态数据源）
+      "from": "build-resources/mcp-adapter",
+      "to": "mcp-adapter"
+    },
+    {
+      "from": "build-resources/icon.png",
+      "to": "icon.png"
+    }
+  ],
+  "win": {
+    "target": ["nsis"],
+    // 应用图标：build-resources/icon.png（≥256x256，electron-builder
+    // 自动转多层 ico 并由 rcedit 嵌入 exe 元数据）；NSIS 安装器 /
+    // 卸载器图标默认继承应用图标，无需单独配置
+    "icon": "build-resources/icon.png"
+  },
+  "nsis": {
+    // 辅助安装器（非 oneClick）：用户可选安装目录，实际体验更真实
+    "oneClick": false,
+    "perMachine": false,
+    "allowToChangeInstallationDirectory": true,
+    "artifactName": "KikoWorkbench-Setup-${version}.${ext}"
+  }
+}

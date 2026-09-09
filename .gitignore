@@ -1,0 +1,46 @@
+# 依赖与产物
+node_modules/
+dist/
+*.tsbuildinfo
+
+# 桌面端构建产物（bundle-plugins / vendor-sdk / electron-builder 生成，dist 流程自动重建）
+apps/desktop/release/
+apps/desktop/build-resources/esbuild/
+apps/desktop/build-resources/plugins/
+apps/desktop/build-resources/mcp-adapter/
+
+# pnpm 项目内 store / cache / state / tmp（见 .npmrc）
+.pnpm-store/
+.pnpm-cache/
+.pnpm-state/
+.pnpm-tmp/
+
+# 锁文件：本工程以 pnpm-lock.yaml 为唯一锁文件（npm 的锁文件不入库）
+package-lock.json
+
+# 工具缓存
+.eslintcache
+.cache/
+
+# 环境与日志
+.env
+.env.local
+*.log
+.tmp/
+
+# 内部工作文档（不随开源仓库分发）
+/Kiko 工作台 PRD｜Agent-Native Capability Execution Platform.md
+/Kiko 工作台产品迭代待办.md
+/Kiko 工作台开发任务清单.md
+/Kiko 工作台技术设计文档.md
+/Kiko 插件 SDK 分发 与 Agent 自举开发方案.md
+/Kiko 插件 SDK 分发与 Agent 自举开发方案.md
+/Kiko 插件配置与声明式 UI 方案草案.md
+/Kiko 插件零 Shell 自举闭环方案.md
+/常用打包命令.md
+
+# 编辑器
+.idea/
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json

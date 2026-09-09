@@ -1,0 +1,12 @@
+{
+  // 继承工程 TS 基线（strict / NodeNext / declaration）
+  // 注意：本包位于 packages/plugins/ 下，extends 路径多一层
+  "extends": "../../../tsconfig.base.json",
+  "compilerOptions": {
+    "rootDir": "src",
+    "outDir": "dist"
+  },
+  "include": ["src"],
+  // 测试文件由 vitest 直接运行 TS 源码，不进入 tsc 构建产物
+  "exclude": ["src/**/*.test.ts"]
+}

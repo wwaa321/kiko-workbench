@@ -1,0 +1,93 @@
+[
+  {
+    "id": "file.read",
+    "name": "Read File",
+    "description": "Read a text file's content. The path is resolved against the system documents directory (the same base as file.list); paths outside it are rejected. NOTE: file.write uses a DIFFERENT base — the workspace root (by default the 'Kiko Workbench' subdirectory of the documents directory). To read back a file written by file.write, prefix its returned path with the workspace directory (locate it via file.list on the documents root).",
+    "input_schema": {
+      "type": "object",
+      "properties": {
+        "path": {
+          "type": "string",
+          "description": "File path relative to the documents directory (or absolute path inside it)"
+        }
+      },
+      "required": ["path"]
+    },
+    "output_schema": {
+      "type": "object",
+      "properties": {
+        "content": { "type": "string", "description": "File content (UTF-8)" },
+        "size": { "type": "number", "description": "File size in bytes" }
+      },
+      "required": ["content", "size"]
+    }
+  },
+  {
+    "id": "file.write",
+    "name": "Write File",
+    "description": "Write a text file into the workspace (any subdirectory; parent directories are created automatically). Writing to an existing path overwrites it. The written file is registered as an artifact. NOTE: unlike file.read / file.list (documents directory base), paths here are resolved against the workspace root (by default the 'Kiko Workbench' subdirectory of the documents directory), and the returned path is relative to the workspace root — reading it back via file.read requires the workspace directory prefix.",
+    "input_schema": {
+      "type": "object",
+      "properties": {
+        "path": {
+          "type": "string",
+          "description": "Target path relative to the workspace root (or absolute path inside it). Note: file.read / file.list resolve paths against the documents directory instead"
+        },
+        "content": {
+          "type": "string",
+          "description": "File content (UTF-8)"
+        }
+      },
+      "required": ["path", "content"]
+    },
+    "output_schema": {
+      "type": "object",
+      "properties": {
+        "path": {
+          "type": "string",
+          "description": "Written path relative to the workspace root (POSIX separators). Reading it back via file.read requires the workspace directory prefix (by default 'Kiko Workbench')"
+        },
+        "size": { "type": "number", "description": "Written size in bytes" }
+      },
+      "required": ["path", "size"]
+    }
+  },
+  {
+    "id": "file.list",
+    "name": "List Directory",
+    "description": "List entries of a directory inside the system documents directory. With recursive=true, entries in subdirectories are included and names become relative paths.",
+    "input_schema": {
+      "type": "object",
+      "properties": {
+        "path": {
+          "type": "string",
+          "description": "Directory path relative to the documents directory; defaults to the documents directory itself"
+        },
+        "recursive": {
+          "type": "boolean",
+          "description": "Include entries of all subdirectories (names become relative paths)"
+        }
+      }
+    },
+    "output_schema": {
+      "type": "object",
+      "properties": {
+        "entries": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string",
+                "description": "Entry name (or relative path when recursive)"
+              },
+              "is_dir": { "type": "boolean", "description": "Whether the entry is a directory" },
+              "size": { "type": "number", "description": "File size in bytes (0 for directories)" }
+            }
+          }
+        }
+      },
+      "required": ["entries"]
+    }
+  }
+]

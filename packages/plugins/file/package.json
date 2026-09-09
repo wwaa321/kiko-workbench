@@ -1,0 +1,21 @@
+{
+  "name": "@kiko-workbench/plugin-file",
+  "version": "0.1.0",
+  "type": "module",
+  "description": "File 内置插件：file.read / file.write / file.list（设计文档 8.6，沙箱规则见 7.4.3）",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@kiko-workbench/plugin-sdk": "workspace:*"
+  }
+}

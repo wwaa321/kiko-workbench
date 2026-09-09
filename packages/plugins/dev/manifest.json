@@ -1,0 +1,49 @@
+{
+  "id": "dev",
+  "name": "Dev",
+  "description": "Development and testing plugin: long-task simulation for async semantics verification (progress reporting, cooperative cancel checkpoints, force-kill path via ignore_cancel), greeting for declarative config reference (P-002), and uitest for micro-app push reference (P-003)",
+  "version": "0.3.0",
+  "entry": "dist/index.js",
+  "permissions": [],
+  "contributes": {
+    "ui": {
+      "entry": "web/index.html"
+    },
+    "configuration": {
+      "type": "object",
+      "properties": {
+        "greeting_name": {
+          "type": "string",
+          "title": "问候对象",
+          "description": "dev.greeting 的缺省问候对象（能力输入 name 可覆盖）",
+          "default": "world"
+        },
+        "style": {
+          "type": "string",
+          "title": "问候风格",
+          "enum": ["casual", "formal"],
+          "default": "casual"
+        },
+        "exclaim": {
+          "type": "boolean",
+          "title": "感叹语气",
+          "default": false
+        },
+        "repeat_times": {
+          "type": "integer",
+          "title": "重复次数",
+          "default": 1,
+          "minimum": 1,
+          "maximum": 5
+        },
+        "api_token": {
+          "type": "string",
+          "title": "访问令牌",
+          "description": "秘密字段示范：表单遮蔽展示、导出 zip 不携带、调用结果只回显状态不回显值",
+          "x-kiko-secret": true
+        }
+      },
+      "required": ["api_token"]
+    }
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "id": "document",
+  "name": "Document",
+  "description": "Document generation plugin: create docx files from Markdown-subset content (workspace artifacts, auto-renamed on conflict)",
+  "version": "0.1.0",
+  "entry": "dist/index.js",
+  "permissions": []
+}

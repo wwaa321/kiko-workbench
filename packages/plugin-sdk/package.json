@@ -1,0 +1,25 @@
+{
+  "name": "@kiko-workbench/plugin-sdk",
+  "version": "0.1.0",
+  "type": "module",
+  "description": "插件开发者 SDK：插件接口类型（KikoPlugin / InvocationContext 含 ctx.artifacts）+ plugin-host 运行时（设计文档第 8 节）",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./host-entry": {
+      "types": "./dist/host-entry.d.ts",
+      "default": "./dist/host-entry.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@kiko-workbench/protocol": "workspace:*"
+  }
+}

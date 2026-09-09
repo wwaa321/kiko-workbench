@@ -1,0 +1,29 @@
+{
+  // TypeScript 基线配置（设计文档 ADR-004：TS 全栈，strict 模式）
+  // 所有子包通过 "extends": "../../tsconfig.base.json" 继承并按需覆写。
+  "compilerOptions": {
+    // 目标运行环境：Electron 35+ 内嵌 Node 22，可用最新 ES2022 特性
+    "target": "ES2022",
+    // 模块体系：NodeNext（输出由 Node 直接运行，import 需带 .js 扩展名）
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    // 严格模式全家桶
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "noImplicitOverride": true,
+    "noFallthroughCasesInSwitch": true,
+    // 模块互操作
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "isolatedModules": true,
+    "skipLibCheck": true,
+    // 产物结构：src -> dist，生成 .d.ts 供 workspace 内部引用
+    // 注意：rootDir/outDir 必须由各子包 tsconfig 自行声明——
+    // extends 继承的相对路径以 base 文件位置解析，写在 base 里会指向错误目录
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    // Node 内置 API 类型
+    "types": ["node"]
+  }
+}

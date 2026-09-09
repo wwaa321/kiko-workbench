@@ -1,0 +1,22 @@
+{
+  "name": "@kiko-workbench/plugin-document",
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Document 内置插件：document.create（Markdown 子集 → docx，显式东亚字体 R2；设计文档 8.6 / ADR-006）",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@kiko-workbench/plugin-sdk": "workspace:*",
+    "docx": "^9.5.1"
+  }
+}

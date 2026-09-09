@@ -1,0 +1,18 @@
+{
+  "name": "@kiko-workbench/protocol",
+  "version": "0.1.0",
+  "type": "module",
+  "description": "协议层：JSON-RPC 2.0 编解码、六方法类型定义、核心对象类型、错误码常量（设计文档第 5 / 7.1 节）",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "vitest run"
+  }
+}

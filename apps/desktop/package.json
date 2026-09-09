@@ -1,0 +1,35 @@
+{
+  "name": "kiko-workbench-desktop",
+  "version": "0.1.3",
+  "private": true,
+  "type": "module",
+  "description": "Kiko 工作台是一个面向 Agent 的外部工具管理平台与业务能力执行器（Agent-Native Capability Execution Platform）",
+  "main": "dist/headless.js",
+  "scripts": {
+    "build": "tsc -p tsconfig.json && vite build",
+    "dev": "tsc -p tsconfig.json && cross-env KIKO_SHELL=1 VITE_DEV_SERVER_URL=http://127.0.0.1:5173 concurrently -k \"vite\" \"wait-on tcp:127.0.0.1:5173 && electron .\"",
+    "headless": "tsc -p tsconfig.json && electron .",
+    "vendor:sdk": "node scripts/vendor-sdk.mjs",
+    "bundle:plugins": "node scripts/bundle-plugins.mjs",
+    "dist": "pnpm run build && pnpm run vendor:sdk && pnpm run bundle:plugins && node scripts/release.mjs --win"
+  },
+  "dependencies": {
+    "@kiko-workbench/core": "workspace:*",
+    "@kiko-workbench/plugin-sdk": "workspace:*",
+    "@kiko-workbench/protocol": "workspace:*",
+    "adm-zip": "^0.6.0",
+    "vue": "^3.5.13"
+  },
+  "devDependencies": {
+    "@esbuild/win32-x64": "^0.28.2",
+    "@types/adm-zip": "^0.5.8",
+    "@vitejs/plugin-vue": "^6.0.0",
+    "concurrently": "^9.1.2",
+    "cross-env": "^10.0.0",
+    "electron": "^35.0.0",
+    "electron-builder": "^25.1.8",
+    "esbuild": "^0.25.0",
+    "vite": "^7.1.0",
+    "wait-on": "^8.0.1"
+  }
+}

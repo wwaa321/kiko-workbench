@@ -1,0 +1,14 @@
+# 产物与依赖
+dist/
+node_modules/
+
+# M2-10a 打包链产物（插件 bundle / electron-builder 输出）
+apps/desktop/build-resources/
+apps/desktop/release/
+
+# 锁文件由包管理器自管
+pnpm-lock.yaml
+package-lock.json
+
+# 手写文档不做 prettier 格式化，避免表格被重排产生 diff 噪音
+*.md

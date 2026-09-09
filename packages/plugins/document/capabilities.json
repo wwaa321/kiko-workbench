@@ -1,0 +1,29 @@
+[
+  {
+    "id": "document.create",
+    "name": "Create Document",
+    "description": "Create a docx document from Markdown content (subset: h1-h3 headings, paragraphs, ordered/unordered lists, bold/italic). Tables, images and code blocks are not supported.",
+    "timeout_ms": 60000,
+    "input_schema": {
+      "type": "object",
+      "properties": {
+        "content": { "type": "string", "description": "Markdown 文档内容" },
+        "filename": { "type": "string", "description": "输出文件名（含 .docx 后缀）" },
+        "format": { "type": "string", "enum": ["docx"], "default": "docx" }
+      },
+      "required": ["content", "filename"]
+    },
+    "output_schema": {
+      "type": "object",
+      "properties": {
+        "file": {
+          "type": "string",
+          "description": "绝对路径（工作空间 document/ 子目录，见 7.4）"
+        },
+        "filename": { "type": "string", "description": "最终落盘文件名（同名冲突时含序号）" },
+        "mime_type": { "type": "string" }
+      },
+      "required": ["file", "filename", "mime_type"]
+    }
+  }
+]

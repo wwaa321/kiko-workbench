@@ -1,0 +1,8 @@
+{
+  "id": "sdk",
+  "name": "Plugin SDK Distributor",
+  "description": "插件开发 SDK 分发：物料位置、版本、安装指引（Agent 自举插件开发的入口）",
+  "version": "0.1.0",
+  "entry": "dist/index.js",
+  "permissions": []
+}

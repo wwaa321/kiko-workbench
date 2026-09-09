@@ -1,0 +1,30 @@
+{
+  "name": "@kiko-workbench/core",
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Workbench Core：七大模块（Registry / Invocation / Execution / State / Event / Log / Workspace）+ WS Server（设计文档第 6 节）",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@kiko-workbench/plugin-sdk": "workspace:*",
+    "@kiko-workbench/protocol": "workspace:*",
+    "ajv": "^8.20.0",
+    "nanoid": "^6.0.1",
+    "ws": "8.18.0"
+  },
+  "devDependencies": {
+    "@types/adm-zip": "^0.5.8",
+    "@types/ws": "8.5.12",
+    "adm-zip": "^0.6.0"
+  }
+}

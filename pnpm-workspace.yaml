@@ -1,0 +1,8 @@
+# pnpm workspace 包定义（设计文档第 4 节：工程结构）
+# apps/*     —— 应用壳（desktop = Electron 主进程 + Vue 渲染进程）
+# packages/* —— 核心库（protocol / core / plugin-sdk / mcp-adapter）
+# packages/plugins/* —— 内置插件（file / document ...）
+packages:
+  - "apps/*"
+  - "packages/*"
+  - "packages/plugins/*"
